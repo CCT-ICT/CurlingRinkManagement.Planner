@@ -1,0 +1,12 @@
+<div style="overflow-y: scroll; max-height: 90vh;">
+  <div style="display: inline-block; width: 5%;">
+    <app-time-overview></app-time-overview>
+  </div>
+
+  @for(sheet of sheets; track sheet.id){
+  <div style="display: inline-block; width: 20%;margin-right: 10px;">
+    <app-sheet-overview [sheet]="sheet"></app-sheet-overview>
+  </div>
+  }
+
+</div>
