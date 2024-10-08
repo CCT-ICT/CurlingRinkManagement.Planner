@@ -31,6 +31,7 @@ public class ActivityService(IRepository<Activity> activityRepository) : IActivi
     public List<Activity> GetAllOnSheet(Guid sheetId, DateTime start, DateTime end)
     {
         var activities = activityRepository.GetAll().Include(a => a.PlannedDates).Include(a => a.ActivityType)
+            .Where(a => a.SheetId == sheetId)
             .Where(a => a.PlannedDates.Any(d => (d.Start.AddMinutes(-d.MinutesBlockedBefore) >= start && d.Start.AddMinutes(-d.MinutesBlockedBefore) <= end) || 
                                                 (d.End.AddMinutes(d.MinutesBlockedAfter) >= start && d.End.AddMinutes(d.MinutesBlockedAfter) <= end))).ToList();
 

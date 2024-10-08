@@ -7,7 +7,7 @@ import { ActivityModel } from '../../models/activity.model';
 import { DateTimeRange } from '../../models/date-time-range.model';
 import { MultiDateSelectComponent } from "../multi-date-select/multi-date-select.component";
 import { DateTimeInput, dateTimeInputToDates } from '../../models/date-time-input.model';
-import { FormBuilder, FormControl,  ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-sheet-overview',
@@ -143,17 +143,24 @@ export class SheetOverviewComponent implements OnInit {
     if (this.currentEvent == null || this.currentEvent.activity == null || this.activityForm.invalid) return;
     let form = this.activityForm.value;
     let activity = this.currentEvent.activity;
-    this.plannedDates.forEach(d =>{
+    this.plannedDates.forEach(d => {
       let planned = new DateTimeRange();
       let range = dateTimeInputToDates(d);
       planned.start = range[0];
-      planned.end = range[0];
+      planned.end = range[1];
       activity.plannedDates.push(planned);
     })
     activity.activityTypeId = form.activityTypeId!;
     activity.title = form.title!;
     activity.sheetId = this.sheet.id;
-    console.log(activity);
+    this.activityService.Create(activity).subscribe({
+      next: a => {
+        this.currentEvent = null;
+      },
+      error: e => {
+        console.log(e);
+      }
+    });
   }
 
 }
