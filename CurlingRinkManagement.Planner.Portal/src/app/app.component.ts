@@ -4,6 +4,8 @@ import { SheetOverviewComponent } from "./components/sheet-overview/sheet-overvi
 import { TimeOverviewComponent } from "./components/time-overview/time-overview.component";
 import { SheetService } from './services/sheet.service';
 import { SheetModel } from './models/sheet.model';
+import { ActivityTypeModel } from './models/activity-type.model';
+import { ActivityTypeService } from './services/activity-type.service';
 
 @Component({
   selector: 'app-root',
@@ -15,9 +17,22 @@ import { SheetModel } from './models/sheet.model';
 export class AppComponent implements OnInit {
 
   public sheets: SheetModel[] = [];
-  constructor(private sheetService: SheetService){}
+  public activityTypes: ActivityTypeModel[] = [];
+
+  constructor(private sheetService: SheetService, private activityTypeService: ActivityTypeService){}
 
   ngOnInit(): void {
+    this.loadActivityTypes();
+    this.loadSheets();
+  }
+
+  private loadActivityTypes() {
+    this.activityTypeService.GetAll().subscribe(a => {
+      this.activityTypes = a;
+    });
+  }
+
+  private loadSheets(){
     this.sheetService.GetAll().subscribe(sheets =>{
       this.sheets = sheets;
       this.sheets.sort((s1, s2) => s1.order - s2.order)

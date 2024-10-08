@@ -3,12 +3,16 @@ import { EventModel } from '../../models/event.model';
 import { ActivityTypeModel } from '../../models/activity-type.model';
 import { SheetModel } from '../../models/sheet.model';
 import { ActivityService } from '../../services/activity.service';
-import { ActivityTypeService } from '../../services/activity-type.service';
+import { ActivityModel } from '../../models/activity.model';
+import { DateTimeRange } from '../../models/date-time-range.model';
+import { MultiDateSelectComponent } from "../multi-date-select/multi-date-select.component";
+import { DateTimeInput, dateTimeInputToDates } from '../../models/date-time-input.model';
+import { FormBuilder, FormControl,  ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-sheet-overview',
   standalone: true,
-  imports: [],
+  imports: [MultiDateSelectComponent, ReactiveFormsModule],
   templateUrl: './sheet-overview.component.html',
   styleUrl: './sheet-overview.component.scss'
 })
@@ -16,24 +20,31 @@ export class SheetOverviewComponent implements OnInit {
   @Input()
   public sheet: SheetModel = new SheetModel();
 
+  @Input()
+  public activityTypes: ActivityTypeModel[] = []
+
+
   public detailInMinutes: number = 15;
   public heightInPixels = 60;
   public times: Date[] = [];
   public day: Date = new Date();
-
   public currentEvent: EventModel | null = null;
+  public events: EventModel[] = []
+  public plannedDates: DateTimeInput[] = [];
 
   private creating: boolean = false;
 
-  public events: EventModel[] = []
-  public activityTypes: ActivityTypeModel[] = []
+  private formBuilder = new FormBuilder();
+  public activityForm = this.formBuilder.nonNullable.group({
+    title: new FormControl('', Validators.required),
+    activityTypeId: new FormControl('', Validators.required)
+  });
 
-  constructor(private activityService: ActivityService, private activityTypeService: ActivityTypeService) { }
+  constructor(private activityService: ActivityService) { }
 
 
   ngOnInit(): void {
     this.loadTimes();
-    this.loadActivityTypes();
     this.loadActivities();
   }
 
@@ -48,11 +59,6 @@ export class SheetOverviewComponent implements OnInit {
     }
   }
 
-  private loadActivityTypes() {
-    this.activityTypeService.GetAll().subscribe(a => {
-      this.activityTypes = a;
-    });
-  }
   private loadActivities() {
     let start = new Date(this.day.getFullYear(), this.day.getMonth(), this.day.getDate());
     let end = new Date(this.day.getFullYear(), this.day.getMonth(), this.day.getDate());
@@ -94,13 +100,19 @@ export class SheetOverviewComponent implements OnInit {
   }
 
   hover(time: Date) {
-    if (this.currentEvent == null) return;
+    if (this.currentEvent == null || this.currentEvent.activity !== null) return;
     this.changeEndTime(time);
   }
+
   endClick(time: Date) {
-    if (this.currentEvent == null) return;
+    if (this.currentEvent == null || this.currentEvent.activity !== null) return;
     this.changeEndTime(time);
-    this.currentEvent = null;
+    this.currentEvent.activity = new ActivityModel();
+    let planned = new DateTimeRange();
+    planned.start = this.currentEvent.timeStart;
+    planned.end = this.currentEvent.timeEnd;
+    this.plannedDates = [new DateTimeInput(planned.start, planned.end)]
+
     document.getElementById(this.sheet.name);
   }
 
@@ -126,4 +138,22 @@ export class SheetOverviewComponent implements OnInit {
     end.setMinutes(date.getMinutes() + minutes);
     return end;
   }
+
+  save() {
+    if (this.currentEvent == null || this.currentEvent.activity == null || this.activityForm.invalid) return;
+    let form = this.activityForm.value;
+    let activity = this.currentEvent.activity;
+    this.plannedDates.forEach(d =>{
+      let planned = new DateTimeRange();
+      let range = dateTimeInputToDates(d);
+      planned.start = range[0];
+      planned.end = range[0];
+      activity.plannedDates.push(planned);
+    })
+    activity.activityTypeId = form.activityTypeId!;
+    activity.title = form.title!;
+    activity.sheetId = this.sheet.id;
+    console.log(activity);
+  }
+
 }

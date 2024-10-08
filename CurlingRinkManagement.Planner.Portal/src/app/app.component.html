@@ -5,7 +5,7 @@
 
   @for(sheet of sheets; track sheet.id){
   <div style="display: inline-block; width: 20%;margin-right: 10px;">
-    <app-sheet-overview [sheet]="sheet"></app-sheet-overview>
+    <app-sheet-overview [sheet]="sheet" [activityTypes]="activityTypes"></app-sheet-overview>
   </div>
   }
 

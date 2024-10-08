@@ -34,6 +34,9 @@
             "styles": [
               "node_modules/bootstrap/scss/bootstrap.scss",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "public/fontawesome-free-6.6.0-web/css/fontawesome.css",
+              "public/fontawesome-free-6.6.0-web/css/brands.css",
+              "public/fontawesome-free-6.6.0-web/css/solid.css",
               "src/styles.scss"
             ],
             "scripts": [

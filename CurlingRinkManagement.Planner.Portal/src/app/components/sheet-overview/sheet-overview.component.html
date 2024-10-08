@@ -1,37 +1,54 @@
 <div style="border: solid black 1px; border-bottom: 0px;overflow: hidden">
-    @for(time of times; track time){
-    <div (mousedown)="startClick(time)" (mouseenter)="hover(time)" (mouseup)="endClick(time)" [attr.data]="time"
-        [style.height]="heightInPixels/4 + 'px'" [style.border-bottom]="time.getMinutes() === 45? '1px solid black':''">
+  @for(time of times; track time){
+  <div (mousedown)="startClick(time)" (mouseenter)="hover(time)" (mouseup)="endClick(time)" [attr.data]="time"
+    [style.height]="heightInPixels/4 + 'px'" [style.border-bottom]="time.getMinutes() === 45? '1px solid black':''">
 
-        @let event = getEvent(time);
-        @if(event != null){
-        <div class="activity-card" [class.transparant]="event.activity === null" style="background-color: aqua;"
-            [style.height]="getLength(event)/60*heightInPixels + 'px'" [attr.start]="event.timeStart"
-            [attr.end]="event.timeEnd">
-            <small class="no-highlight" style="position: relative;">{{event.timeStart.toLocaleString("nl-NL",
-                {hour:"2-digit", minute:"2-digit"})}} - {{event.timeEnd.toLocaleString("nl-NL", {hour:"2-digit",
-                minute:"2-digit"})}}</small>
-        </div>
-        }
+    @let event = getEvent(time);
+    @if(event != null){
+    <div class="activity-card" [class.transparant]="event.activity === null" style="background-color: aqua;"
+      [style.height]="getLength(event)/60*heightInPixels + 'px'" [attr.start]="event.timeStart"
+      [attr.end]="event.timeEnd">
+      <small class="no-highlight" style="position: relative;">{{event.timeStart.toLocaleString("nl-NL",
+        {hour:"2-digit", minute:"2-digit"})}} - {{event.timeEnd.toLocaleString("nl-NL", {hour:"2-digit",
+        minute:"2-digit"})}}</small>
     </div>
     }
+  </div>
+  }
 </div>
-<!-- 
-@if(sheet.name === "A"){
-    <div class="modal" tabindex="-1" style="display: block;">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">New activity</h5>
-            </div>
-            <div class="modal-body">
-              <p>Modal body text goes here.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary">Cancle</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-          </div>
-        </div>
+
+@if(currentEvent !== null && currentEvent.activity !== null){
+<div class="modal" tabindex="-1" style="display: block;">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New activity</h5>
       </div>
-} -->
+      <div class="modal-body">
+        <form [formGroup]="activityForm">
+          <div class="mb-3">
+            <label for="activityType" class="form-label">Activity Type</label>
+            <select class="form-select" id="activityType" formControlName="activityTypeId">
+              <option selected>SelectType</option>
+              @for (activityType of activityTypes; track activityType) {
+                <option value="{{activityType.id}}">{{activityType.type}}</option>
+              }
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" formControlName="title">
+          </div>
+          <div class="mb-3">
+            <app-multi-date-select [(dates)]="plannedDates"></app-multi-date-select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="save()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+}
