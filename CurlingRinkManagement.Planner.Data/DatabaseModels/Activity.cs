@@ -10,10 +10,7 @@ public class Activity : IDatabaseEntity
 
     //References
     public List<DateTimeRange> PlannedDates { get; set; } = [];
-
-    [ForeignKey("Sheet")]
-    public Guid SheetId { get; set; }
-    public Sheet? Sheet { get; set; } = null;
+    public List<SheetActivity> Sheets { get; set; } = [];
 
     [ForeignKey("ActivityType")]
     public Guid ActivityTypeId { get; set; }

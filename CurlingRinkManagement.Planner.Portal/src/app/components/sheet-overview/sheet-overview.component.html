@@ -5,13 +5,14 @@
 
     @let event = getEvent(time);
     @if(event != null){
-    <div class="activity-card hoverable" [class.transparant]="event.activity === null"
-      style="z-index: 1;" [style.background-color]="getColor(event)" [style.height]="getLength(event)/60*heightInPixels + 'px'"
+    <div class="activity-card hoverable" [class.transparant]="event.activity === null" style="z-index: 1;"
+      [style.background-color]="getColor(event)" [style.height]="getLength(event)/60*heightInPixels + 'px'"
       [attr.start]="event.timeStart" [attr.end]="event.timeEnd"
       (mousedown)="selectEvent(event); $event.stopPropagation()">
       <small class="no-highlight" style="position: relative;">{{event.timeStart.toLocaleString("nl-NL",
         {hour:"2-digit", minute:"2-digit"})}} - {{event.timeEnd.toLocaleString("nl-NL", {hour:"2-digit",
         minute:"2-digit"})}}</small>
+      <br><small class="no-highlight" style="position: relative;">{{event.activity?.title}}</small>
     </div>
     }
   </div>
@@ -33,8 +34,8 @@
             <select class="form-select" id="activityType" formControlName="activityTypeId">
               <option selected>SelectType</option>
               @for (activityType of activityTypes; track activityType) {
-              <option value="{{activityType.id}}"
-                [selected]="activityType.id == currentEvent.activity.activityTypeId">{{activityType.type}}</option>
+              <option value="{{activityType.id}}" [selected]="activityType.id == currentEvent.activity.activityTypeId">
+                {{activityType.type}}</option>
               }
             </select>
           </div>

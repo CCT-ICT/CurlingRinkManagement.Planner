@@ -17,6 +17,7 @@ public class DataContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Activity>().OwnsMany(a => a.PlannedDates);
+        modelBuilder.Entity<Activity>().OwnsMany(a => a.Sheets);
     }
 
     public DbSet<Activity> Activities { get; set; }

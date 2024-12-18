@@ -3,6 +3,7 @@ using System;
 using CurlingRinkManagement.Planner.Business.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurlingRinkManagement.Planner.Business.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241218194459_ActivityHasMultipleSheets")]
+    partial class ActivityHasMultipleSheets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,6 +88,27 @@ namespace CurlingRinkManagement.Planner.Business.Migrations
                     b.ToTable("Sheets");
                 });
 
+            modelBuilder.Entity("CurlingRinkManagement.Planner.Domain.DatabaseModels.SheetActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ActivityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("SheetId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("SheetId");
+
+                    b.ToTable("SheetActivity");
+                });
+
             modelBuilder.Entity("CurlingRinkManagement.Planner.Domain.DatabaseModels.Activity", b =>
                 {
                     b.HasOne("CurlingRinkManagement.Planner.Domain.DatabaseModels.ActivityType", "ActivityType")
@@ -124,42 +148,32 @@ namespace CurlingRinkManagement.Planner.Business.Migrations
                             b1.Navigation("Activity");
                         });
 
-                    b.OwnsMany("CurlingRinkManagement.Planner.Domain.DatabaseModels.SheetActivity", "Sheets", b1 =>
-                        {
-                            b1.Property<Guid>("ActivityId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<Guid>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("uuid");
-
-                            b1.Property<Guid>("SheetId")
-                                .HasColumnType("uuid");
-
-                            b1.HasKey("ActivityId", "Id");
-
-                            b1.HasIndex("SheetId");
-
-                            b1.ToTable("SheetActivity");
-
-                            b1.WithOwner("Activity")
-                                .HasForeignKey("ActivityId");
-
-                            b1.HasOne("CurlingRinkManagement.Planner.Domain.DatabaseModels.Sheet", "Sheet")
-                                .WithMany()
-                                .HasForeignKey("SheetId")
-                                .OnDelete(DeleteBehavior.Cascade)
-                                .IsRequired();
-
-                            b1.Navigation("Activity");
-
-                            b1.Navigation("Sheet");
-                        });
-
                     b.Navigation("ActivityType");
 
                     b.Navigation("PlannedDates");
+                });
 
+            modelBuilder.Entity("CurlingRinkManagement.Planner.Domain.DatabaseModels.SheetActivity", b =>
+                {
+                    b.HasOne("CurlingRinkManagement.Planner.Domain.DatabaseModels.Activity", "Activity")
+                        .WithMany("Sheets")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CurlingRinkManagement.Planner.Domain.DatabaseModels.Sheet", "Sheet")
+                        .WithMany()
+                        .HasForeignKey("SheetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+
+                    b.Navigation("Sheet");
+                });
+
+            modelBuilder.Entity("CurlingRinkManagement.Planner.Domain.DatabaseModels.Activity", b =>
+                {
                     b.Navigation("Sheets");
                 });
 #pragma warning restore 612, 618

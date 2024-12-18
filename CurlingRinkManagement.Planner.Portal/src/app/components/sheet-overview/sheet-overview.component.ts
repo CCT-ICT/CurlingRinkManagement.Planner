@@ -180,7 +180,7 @@ export class SheetOverviewComponent implements OnInit {
     })
     activity.activityTypeId = form.activityTypeId!;
     activity.title = form.title!;
-    activity.sheetId = this.sheet.id;
+    activity.sheetIds = [this.sheet.id];
     console.log(this.isCreating)
     if (this.isCreating) {
       this.activityService.Create(activity).subscribe({
