@@ -26,6 +26,21 @@ public class ActivityController(IActivityService activityService) : ControllerBa
         }
     }
 
+    [HttpPut]
+    public IActionResult Update(ActivityModel activity)
+    {
+        try
+        {
+            var result = _activityService.Update(activity.ToActivity());
+            var converted = ActivityModel.FromActivity(result);
+            return Ok(converted);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPost]
     public IActionResult Create(ActivityModel activity)
     {
@@ -40,4 +55,6 @@ public class ActivityController(IActivityService activityService) : ControllerBa
             return BadRequest(ex.Message);
         }
     }
+
+
 }

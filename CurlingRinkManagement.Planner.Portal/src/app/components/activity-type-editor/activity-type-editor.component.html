@@ -8,6 +8,7 @@
     <div class="card-header">
         Activity types
     </div>
+    <button class="btn btn-success" (click)="updateActivityTypes()">Save</button>
     <div class="card-body">
         @for(activityType of activityTypes; track activityType; let i = $index){
         <div class="card">

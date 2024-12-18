@@ -32,11 +32,11 @@ export class SheetOverviewComponent implements OnInit {
   public events: EventModel[] = []
   public plannedDates: DateTimeInput[] = [];
 
-  private creating: boolean = false;
+  public isCreating: boolean = false;
 
   private formBuilder = new FormBuilder();
   public activityForm = this.formBuilder.nonNullable.group({
-    title: new FormControl('', Validators.required),
+    title: new FormControl(''),
     activityTypeId: new FormControl('', Validators.required)
   });
 
@@ -77,6 +77,11 @@ export class SheetOverviewComponent implements OnInit {
     });
   }
 
+  getColor(event : EventModel){
+    let activityType = this.activityTypes.find(a => a.id == event.activity?.activityTypeId) ;
+    console.log(activityType)
+    return activityType?.color ?? "aqua";
+  }
 
   getEvent(time: Date) {
     return this.events.find(e => e.timeStart.getHours() >= time.getHours() && e.timeStart.getHours() < time.getHours() + 1 && e.timeStart.getMinutes() >= time.getMinutes() && e.timeStart.getMinutes() < time.getMinutes() + 15)
@@ -88,8 +93,8 @@ export class SheetOverviewComponent implements OnInit {
   }
 
   startClick(time: Date) {
-    if (this.creating) return;
-    this.creating = true;
+    if (this.isCreating) return;
+    this.isCreating = true;
     this.currentEvent = {
       timeStart: time,
       originalStart: time,
@@ -139,10 +144,33 @@ export class SheetOverviewComponent implements OnInit {
     return end;
   }
 
+  selectEvent(event: EventModel) {
+    if (this.isCreating) return;
+    this.currentEvent = event
+    if (this.currentEvent.activity != null) {
+      this.plannedDates = this.currentEvent.activity.plannedDates.map((p) => new DateTimeInput(p.start, p.end))
+      this.activityForm.controls.activityTypeId.setValue(this.currentEvent.activity.activityTypeId);
+      this.activityForm.controls.title.setValue(this.currentEvent.activity.title);
+    }
+
+    console.log(event)
+  }
+
+
+  cancel() {
+    if (this.currentEvent == null) return;
+    if (this.isCreating) {
+      this.events.splice(this.events.indexOf(this.currentEvent), 1);
+      this.isCreating = false;
+    }
+    this.currentEvent = null;
+  }
+
   save() {
     if (this.currentEvent == null || this.currentEvent.activity == null || this.activityForm.invalid) return;
     let form = this.activityForm.value;
     let activity = this.currentEvent.activity;
+    activity.plannedDates = [];
     this.plannedDates.forEach(d => {
       let planned = new DateTimeRange();
       let range = dateTimeInputToDates(d);
@@ -153,14 +181,27 @@ export class SheetOverviewComponent implements OnInit {
     activity.activityTypeId = form.activityTypeId!;
     activity.title = form.title!;
     activity.sheetId = this.sheet.id;
-    this.activityService.Create(activity).subscribe({
-      next: a => {
-        this.currentEvent = null;
-      },
-      error: e => {
-        console.log(e);
-      }
-    });
+    console.log(this.isCreating)
+    if (this.isCreating) {
+      this.activityService.Create(activity).subscribe({
+        next: a => {
+          this.currentEvent = null;
+          this.isCreating = false;
+        },
+        error: e => {
+          console.log(e);
+        }
+      });
+    } else{
+      this.activityService.Update(activity).subscribe({
+        next: a => {
+          this.currentEvent = null;
+        },
+        error: e => {
+          console.log(e);
+        }
+      });
+    }
   }
 
 }

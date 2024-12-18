@@ -13,4 +13,9 @@ export class BaseApiSerivce<T> {
         return this.httpClient.post<T>(`${environment.apiUrl}/Api/${this.endpoint}`, entity);
     }
 
+    public Update(entity:T) : Observable<T> {
+        return this.httpClient.put<T>(`${environment.apiUrl}/Api/${this.endpoint}`, entity);
+
+    }
+
 }

@@ -45,6 +45,19 @@ export class ActivityTypeEditorComponent implements OnInit {
   }
 
   addActivityType() {
-    this.activityTypes.push(new ActivityTypeModel());
+    var newActivity = new ActivityTypeModel();
+    newActivity.id = "00000000-0000-0000-0000-000000000000";
+    this.activityTypes.push(newActivity);
+  }
+
+  updateActivityTypes() {
+    this.activityTypes.forEach(activityType => {
+      if (activityType.id == "00000000-0000-0000-0000-000000000000") {
+        activityType.id = crypto.randomUUID();
+        this.activityTypeService.Create(activityType).subscribe();
+      } else {
+        this.activityTypeService.Update(activityType).subscribe();
+      }
+    });
   }
 }
